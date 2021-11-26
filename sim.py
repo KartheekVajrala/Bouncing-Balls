@@ -10,11 +10,12 @@ from utilities import *
 # User Parameters
 
 L = 1                    # Length of the box
-N = 50                  # Number of balls
+N = 20                  # Number of balls
 initial_radius = 0          # Initial radius of the balls
 final_volume_frac = 0.7     # Fraction of the volume of the box at end
 save_location = True        # Save the location of the balls
-hardCollision = False
+hardCollision = True
+increase_radius_hard = True
 
 def Cube():
     '''
@@ -118,6 +119,8 @@ def main():
             Calculate_tc(balls,N)
             for ball in balls:
                 ball.update(del_t)
+                if increase_radius_hard:
+                    ball.update_radius(del_t)
             
 
         # Calculate the volume fraction of the box
