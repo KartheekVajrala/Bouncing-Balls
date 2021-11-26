@@ -3,6 +3,9 @@ from OpenGL.GL import images
 import numpy as np
 
 class Vector3:
+    '''
+    3D Vector class for use in physics simulations
+    '''
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -30,6 +33,9 @@ class Vector3:
         return "Vector3({}, {}, {})".format(self.x, self.y, self.z)
 
 class Ball:
+    '''
+    Class for a ball in a 3D environment
+    '''
     def __init__(self, pos, vel, radius):
         self.pos = pos
         self.vel = vel
@@ -41,12 +47,21 @@ class Ball:
         return "Ball({}, {}, {})".format(self.pos, self.vel, self.radius)
 
     def update(self, dt):
+        '''
+        Update the ball's position and velocity
+        '''
         self.pos = self.pos.add(self.vel.mul(dt))
     
     def update_radius(self, dt):
+        '''
+        Update the ball's radius
+        '''
         self.radius = self.radius + self.a * dt
 
 def Calculate_tc(balls,N):
+    '''
+    Algorithm 4.2 
+    '''
     tc = float('inf')
     particles = []
     for i in range(N):
@@ -76,6 +91,9 @@ def Calculate_tc(balls,N):
     return tc, particles
 
 def collosion_balls(particles):
+    '''
+    Updating the Velocitites of the balls after a collision
+    '''
     del_r = particles[0].vel.sub(particles[1].vel)
     u = del_r.div(del_r.mag())
     vel_i_parllel = u.mul(u.dot(particles[0].vel))
@@ -87,6 +105,9 @@ def collosion_balls(particles):
     return vel_i_new, vel_j_new
 
 def Calculate_tr(balls,N,L):
+    '''
+    Algorithm 4.2 
+    '''
     tr = float('inf')
     particles = []
     ms = [0 for i in range(N)]
@@ -140,6 +161,9 @@ def Calculate_tr(balls,N,L):
     return tr, particles
 
 def generate_images(balls,L):
+    '''
+    For each ball generating necessary images
+    '''
     for ball in balls:
         if ball.pos.x < ball.radius:
             img = Ball(ball.pos.add(Vector3(L,0,0)), ball.vel, ball.radius)
@@ -159,7 +183,11 @@ def generate_images(balls,L):
         if ball.pos.z > L-ball.radius:
             img = Ball(ball.pos.add(Vector3(0,0,-L)), ball.vel, ball.radius)
             ball.images[5] = img
+
 def collision_wall(balls):
+    '''
+    Updating Velocities of balls
+    '''
     for ball in balls:
         if ball.pos.x > 1:
             ball.pos.x = 1
@@ -180,6 +208,30 @@ def collision_wall(balls):
             ball.pos.z = 0
             ball.vel.z = -ball.vel.z
     return
+
+def hard_collision(balls,L):
+    for ball in balls:
+        if ball.pos.x > L - ball.radius:
+            ball.pos.x = L - ball.radius
+            ball.vel.x = -ball.vel.x
+        if ball.pos.x < ball.radius:
+            ball.pos.x = ball.radius
+            ball.vel.x = -ball.vel.x
+        if ball.pos.y > L - ball.radius:
+            ball.pos.y = L - ball.radius
+            ball.vel.y = -ball.vel.y
+        if ball.pos.y < ball.radius:
+            ball.pos.y = ball.radius
+            ball.vel.y = -ball.vel.y
+        if ball.pos.z > L - ball.radius:
+            ball.pos.z = L - ball.radius
+            ball.vel.z = -ball.vel.z
+        if ball.pos.z < ball.radius:
+            ball.pos.z = ball.radius
+            ball.vel.z = -ball.vel.z
+    return
+
+# Vertices of the Cube
 verticies = (
     (1, 0, 0),
     (1, 1, 0),
@@ -191,6 +243,7 @@ verticies = (
     (0, 1, 1)
     )
 
+# Edges of the Cube
 edges = (
     (0,1),
     (0,3),

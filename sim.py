@@ -1,3 +1,5 @@
+# importing Libraries
+
 import pygame
 from pygame.locals import *
 import random
@@ -5,12 +7,19 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 from utilities import *
 
-L = 1
-N = 50
-initial_radius = 0
-final_volume_frac = 0.7
+# User Parameters
+
+L = 1                    # Length of the box
+N = 50                  # Number of balls
+initial_radius = 0          # Initial radius of the balls
+final_volume_frac = 0.7     # Fraction of the volume of the box at end
+save_location = True        # Save the location of the balls
+hardCollision = False
 
 def Cube():
+    '''
+    Using OpenGL to draw a cube edges
+    '''
     glBegin(GL_LINES)
     for edge in edges:
         for vertex in edge:
@@ -19,22 +28,30 @@ def Cube():
     glEnd()
 
 def Sphere(ball):
+    '''
+    Using OpenGL to draw a sphere
+    ball is an object from the class Ball in ultilities.py
+    '''
     glPushMatrix()
     sphere = gluNewQuadric()
     glTranslatef(ball.pos.x,ball.pos.y,ball.pos.z) #Move to the place
     glColor3fv((1,0,0)) #Put color
     gluSphere(sphere, ball.radius, 16, 8) #Draw sphere
     glPopMatrix()
+    # Also need to draw the images of cubes
     for img in ball.images:
         if img != None:
             Sphere(img)
 
 def remove_images(balls):
+    '''
+    Removing uneccessary images that are not needed.
+    '''
     for b,ball in enumerate(balls):
         for i,img in enumerate(ball.images):
             if img == None:
                 continue
-            if i==0:
+            if i==0:                                        # If the image is the first image and the ball is not touching wall delete it
                 if ball.pos.x > ball.radius:
                     ball.images[i] = None
                 if ball.pos.x < -ball.radius:
@@ -70,21 +87,29 @@ def remove_images(balls):
                 if ball.pos.z > L + ball.radius:
                     balls[b] = ball.images[i]
                     break
-        
+
+def save_balls(balls):
+    '''
+    Save balls location in a locations.txt file
+    '''
+    with open('locations.txt','w') as f:
+        for ball in balls:
+            f.write(str(ball.radius) +" , " + str(ball.pos.x) + ' , ' + str(ball.pos.y) + ' , ' + str(ball.pos.z) + '\n')
+    return
 
 def main():
     # pygame Initialization
     pygame.init()
-    display = (800,600)
-    pygame.display.set_mode(display, DOUBLEBUF|OPENGL)
+    display = (800,600)                                                     # Display size
+    pygame.display.set_mode(display, DOUBLEBUF|OPENGL)                      # Rendering OpenGL in pygame
     
     # opengl Initialization
     gluPerspective(45, (display[0]/display[1]), 1, 50.0)
-    glTranslatef(-0.5, -0.5, -5)
-    glRotatef(-20, 0, 1, 0)
+    glTranslatef(-0.5, -0.5, -4)                                            # Move the camera to the required position
+    glRotatef(-20, 0, 1, 0)                                                 # Rotate the camera to the required position
 
-    # Initialize the balls
-    balls = []
+    # Initialize the balls with random positions and velocities
+    balls = []  
     for i in range(N):
             rand_x = random.uniform(0.1,0.9)
             rand_y = random.uniform(0.1,0.9)
@@ -96,37 +121,57 @@ def main():
 
     # Main Loop
     while True:
-        for event in pygame.event.get():
+        for event in pygame.event.get():                       # Check for events and if quit is pressed exit the code
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
         # glRotatef(1, 0, 1, 0)
 
         # Computaion of Algorithm
+        if not hardCollision:
+        
+            tc, particles1 = Calculate_tc(balls,N)                 # Calculate the time of collision (Algorithm 4.2)
+            tr, particles2 = Calculate_tr(balls,N,L)                # Calculate the time of reflection (Algorithm 4.3)
+            del_t = 0.01
+            del_t = min(tc,0.03)
+            # Update the position and radius of the balls
+            for ball in balls:
+                ball.update(del_t)
+                ball.update_radius(del_t)
+            # Change the position of Balls
+            if del_t == tc:                                         
+                vel_i,vel_j = collosion_balls(particles1)
+                particles1[0].vel = vel_i
+                particles1[1].vel = vel_j
+            
+            generate_images(balls,L)                                
+            collision_wall(balls)
+            remove_images(balls)
+        # For in case of reflection generate the images of the balls
+        else :
+            hard_collision(balls,L)
+            del_t = 0.05
+            Calculate_tc(balls,N)
+            for ball in balls:
+                ball.update(del_t)
+            
 
-        tc, particles1 = Calculate_tc(balls,N)
-        tr, particles2 = Calculate_tr(balls,N,L)
-        del_t = 0.01
-        del_t = min(tc,0.03)
-        for ball in balls:
-            ball.update(del_t)
-            ball.update_radius(del_t)
-        if del_t == tc:
-            vel_i,vel_j = collosion_balls(particles1)
-            particles1[0].vel = vel_i
-            particles1[1].vel = vel_j
-        # if del_t == tr:
-        #     generate_images(balls)
-        generate_images(balls,L)
-        collision_wall(balls)
-        remove_images(balls)
+        # Calculate the volume fraction of the box
         volume = N*(4/3)*3.14*balls[0].radius**3
-        volume_frac = volume/(L**3)
-        if volume_frac > final_volume_frac:
+        volume_frac = volume/(L**3)         
+
+        # Condition for stopping the Simulation                    
+        if volume_frac > final_volume_frac: 
             print("Program ended")
+
+            # If locations are to be Saved.
+            if save_location:
+                save_balls(balls)
+            pygame.quit()
+            quit()
             break
 
-        # Visualization
+        # For Rendering and Visualization using OpenGl
         glEnable(GL_LIGHTING)
         glEnable(GL_LIGHT0)
         glEnable(GL_COLOR_MATERIAL)
@@ -135,9 +180,9 @@ def main():
         glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
     
         for ball in balls:
-            
+            # Rendering the Balls
             Sphere(ball)
-            
+        # Rendering the Box
         Cube()
         pygame.display.flip()
         
