@@ -10,22 +10,22 @@ from utilities import *
 # User Parameters
 
 L = 1                    # Length of the box
-N = 40                  # Number of balls
-initial_radius = 0          # Initial radius of the balls
+N = 20                  # Number of balls
+initial_radius = 0.1          # Initial radius of the balls
 final_volume_frac = 0.7     # Fraction of the volume of the box at end
 save_location = True        # Save the location of the balls
-hardCollision = False
-increase_radius_hard = True
+hardCollision = True            # For simulating with hard boundaries and collisions
+increase_radius_hard = False       # Increase the radius of the balls for the hard collision
 
 def Cube():
     '''
     Using OpenGL to draw a cube edges
     '''
     glBegin(GL_LINES)
-    for edge in edges:
-        for vertex in edge:
-            glColor3fv((0,0,0))
-            glVertex3fv(verticies[vertex])
+    for edge in edges:                       # For each edge in edges taken from utilities 
+        for vertex in edge:                  # For each vertex in edge
+            glColor3fv((0,0,0))                # Set the color to black
+            glVertex3fv(verticies[vertex])          # Draw the vertex
     glEnd()
 
 def Sphere(ball):
@@ -35,21 +35,21 @@ def Sphere(ball):
     '''
     glPushMatrix()
     sphere = gluNewQuadric()
-    glTranslatef(ball.pos.x,ball.pos.y,ball.pos.z) #Move to the place
-    glColor3fv((1,0,0)) #Put color
-    gluSphere(sphere, ball.radius, 16, 8) #Draw sphere
+    glTranslatef(ball.pos.x,ball.pos.y,ball.pos.z)                 #Move to the place
+    glColor3fv((1,0,0))                                            #Put color
+    gluSphere(sphere, ball.radius, 16, 8)                          #Draw sphere
     glPopMatrix()
     # Also need to draw the images of cubes
-    for img in ball.images:
+    for img in ball.images:                                       # For each image of the ball
         if img != None:
-            Sphere(img)
+            Sphere(img)                                            # Draw the image of the ball
 
 def remove_images(balls):
     '''
     Removing uneccessary images that are not needed.
     '''
     for ball in balls:
-        ball.images = []
+        ball.images = []                                          # Remove all images by setting to empty list
 
 def save_balls(balls):
     '''
@@ -74,14 +74,17 @@ def main():
     glRotatef(-20, 0, 1, 0)                                                 # Rotate the camera to the required position
 
     # Initialize the balls with random positions and velocities
-    balls = []  
+    balls = []                                                              # List of balls
     for i in range(N):
+            # Initialize the ball coordinates randomly
             rand_x = random.uniform(0.1,0.9)
             rand_y = random.uniform(0.1,0.9)
             rand_z = random.uniform(0.1,0.9)
+            # Initialize the ball velocities randomly
             rand_x_vel = random.uniform(-0.1,0.1)
             rand_y_vel = random.uniform(-0.1,0.1)
             rand_z_vel = random.uniform(-0.1,0.1)
+            # Add the ball to the list
             balls.append(Ball(Vector3(rand_x,rand_y,rand_z), Vector3(rand_x_vel,rand_y_vel,rand_z_vel), initial_radius))
 
     # Main Loop
@@ -90,38 +93,38 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-        # glRotatef(1, 0, 1, 0)
+        # glRotatef(1, 3, 1, 1)
 
         # Computaion of Algorithm
-        if not hardCollision:
+        if not hardCollision:                                      # If the simulation is not hard collision
         
             tc, particles1 = Calculate_tc(balls,N)                 # Calculate the time of collision (Algorithm 4.2)
             tr, particles2 = Calculate_tr(balls,N,L)                # Calculate the time of reflection (Algorithm 4.3)
-            del_t = 0.01
-            del_t = min(tc,0.02)
+            del_t = 0.01                                            # Time step
+            del_t = min(tc,0.02)                                     # If collision occurs, take the minimum of the two
             # Update the position and radius of the balls
-            for ball in balls:
+            for ball in balls:                                      # For each ball
                 ball.update(del_t)
-                ball.update_radius(del_t)
+                ball.update_radius(del_t)                            
             # Change the position of Balls
             if del_t == tc:                                         
-                vel_i,vel_j = collosion_balls(particles1)
+                vel_i,vel_j = collosion_balls(particles1)             # Calculate the velocities of the balls after collision
+                # Update the velocities of the balls
                 particles1[0].vel = vel_i
                 particles1[1].vel = vel_j
-            
+            # Change the position of Balls
             collision_wall(balls,L)
+            # Generate the images of the balls
             generate_images(balls,L)                                
-            
-            
-        # For in case of reflection generate the images of the balls
+        
         else :
-            hard_collision(balls,L)
+            hard_collision(balls,L)                             # If the simulation is hard collision            
             del_t = 0.05
             Calculate_tc(balls,N)
-            for ball in balls:
-                ball.update(del_t)
-                if increase_radius_hard:
-                    ball.update_radius(del_t)
+            for ball in balls:                                  # For each ball
+                ball.update(del_t)                             # Update the position of the ball
+                if increase_radius_hard:                        # If the radius of the ball needs to be increased
+                    ball.update_radius(del_t)                  # Update the radius of the ball
             
 
         # Calculate the volume fraction of the box
@@ -152,7 +155,7 @@ def main():
             Sphere(ball)
         # Rendering the Box
         Cube()
-
+        # Remove the images of the balls to avoid overlapping
         remove_images(balls)
         pygame.display.flip()
         
