@@ -241,29 +241,24 @@ def generate_images(balls,L):
             ball.images.append(img7)
 
 
-def collision_wall(balls):
+def collision_wall(balls,L=1):
     '''
     Updating Velocities of balls
     '''
     for ball in balls:
-        if ball.pos.x > 1:
-            ball.pos.x = 1
-            ball.vel.x = -ball.vel.x
         if ball.pos.x < 0:
-            ball.pos.x = 0
-            ball.vel.x = -ball.vel.x
-        if ball.pos.y > 1:
-            ball.pos.y = 1
-            ball.vel.y = -ball.vel.y
+            ball.pos.x += L
         if ball.pos.y < 0:
-            ball.pos.y = 0
-            ball.vel.y = -ball.vel.y
-        if ball.pos.z > 1:
-            ball.pos.z = 1
-            ball.vel.z = -ball.vel.z
+            ball.pos.y += L
         if ball.pos.z < 0:
-            ball.pos.z = 0
-            ball.vel.z = -ball.vel.z
+            ball.pos.z += L
+        if ball.pos.x > L:
+            ball.pos.x -= L
+        if ball.pos.y > L:
+            ball.pos.y -= L
+        if ball.pos.z > L:
+            ball.pos.z -= L
+        
     return
 
 def hard_collision(balls,L):

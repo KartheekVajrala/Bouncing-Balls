@@ -10,11 +10,11 @@ from utilities import *
 # User Parameters
 
 L = 1                    # Length of the box
-N = 20                  # Number of balls
+N = 40                  # Number of balls
 initial_radius = 0          # Initial radius of the balls
 final_volume_frac = 0.7     # Fraction of the volume of the box at end
 save_location = True        # Save the location of the balls
-hardCollision = True
+hardCollision = False
 increase_radius_hard = True
 
 def Cube():
@@ -98,7 +98,7 @@ def main():
             tc, particles1 = Calculate_tc(balls,N)                 # Calculate the time of collision (Algorithm 4.2)
             tr, particles2 = Calculate_tr(balls,N,L)                # Calculate the time of reflection (Algorithm 4.3)
             del_t = 0.01
-            del_t = min(tc,0.03)
+            del_t = min(tc,0.02)
             # Update the position and radius of the balls
             for ball in balls:
                 ball.update(del_t)
@@ -109,8 +109,9 @@ def main():
                 particles1[0].vel = vel_i
                 particles1[1].vel = vel_j
             
+            collision_wall(balls,L)
             generate_images(balls,L)                                
-            collision_wall(balls)
+            
             
         # For in case of reflection generate the images of the balls
         else :
