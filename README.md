@@ -12,4 +12,6 @@ random
 
 Python 3.x
 
-To Run the simulation run the "sim.py" file.
+
+
+# To Run the simulation run the "sim.py" file.
