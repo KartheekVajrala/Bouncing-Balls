@@ -156,33 +156,90 @@ def Calculate_tr(balls,N,L):
                 particles = [ball_i]
                 ms[i] += 1
                 ind = i
-        if len(ball_i.images) == 0:
-            generate_images([ball_i],L)
+        # if len(ball_i.images) == 0:
+        #     generate_images([ball_i],L)
     return tr, particles
 
 def generate_images(balls,L):
+    m = 0
     '''
     For each ball generating necessary images
     '''
     for ball in balls:
+        x = 0
+        y = 0
+        z = 0
+        # if ball.pos.x < ball.radius:
+        #     img = Ball(ball.pos.add(Vector3(L,0,0)), ball.vel, ball.radius)
+        #     ball.images[0] = img
+        # if ball.pos.y < ball.radius:
+        #     img = Ball(ball.pos.add(Vector3(0,L,0)), ball.vel, ball.radius)
+        #     ball.images[1] = img
+        # if ball.pos.z < ball.radius:
+        #     img = Ball(ball.pos.add(Vector3(0,0,L)), ball.vel, ball.radius)
+        #     ball.images[2] = img
+        # if ball.pos.x > L-ball.radius:
+        #     img = Ball(ball.pos.add(Vector3(-L,0,0)), ball.vel, ball.radius)
+        #     ball.images[3] = img
+        # if ball.pos.y > L-ball.radius:
+        #     img = Ball(ball.pos.add(Vector3(0,-L,0)), ball.vel, ball.radius)
+        #     ball.images[4] = img
+        # if ball.pos.z > L-ball.radius:
+        #     img = Ball(ball.pos.add(Vector3(0,0,-L)), ball.vel, ball.radius)
+        #     ball.images[5] = img
         if ball.pos.x < ball.radius:
-            img = Ball(ball.pos.add(Vector3(L,0,0)), ball.vel, ball.radius)
-            ball.images[0] = img
+            m += 1
+            x = L
         if ball.pos.y < ball.radius:
-            img = Ball(ball.pos.add(Vector3(0,L,0)), ball.vel, ball.radius)
-            ball.images[1] = img
+            m += 1
+            y = L
         if ball.pos.z < ball.radius:
-            img = Ball(ball.pos.add(Vector3(0,0,L)), ball.vel, ball.radius)
-            ball.images[2] = img
+            m += 1
+            z = L
         if ball.pos.x > L-ball.radius:
-            img = Ball(ball.pos.add(Vector3(-L,0,0)), ball.vel, ball.radius)
-            ball.images[3] = img
+            m += 1
+            x = -L
         if ball.pos.y > L-ball.radius:
-            img = Ball(ball.pos.add(Vector3(0,-L,0)), ball.vel, ball.radius)
-            ball.images[4] = img
+            m += 1
+            y = -L
         if ball.pos.z > L-ball.radius:
-            img = Ball(ball.pos.add(Vector3(0,0,-L)), ball.vel, ball.radius)
-            ball.images[5] = img
+            m += 1
+            z = -L
+        if m == 1:
+            img = Ball(ball.pos.add(Vector3(x,y,z)), ball.vel, ball.radius)
+            ball.images.append(img)
+        elif m == 2:
+            if x == 0:
+                img1 = Ball(ball.pos.add(Vector3(0,y,0)), ball.vel, ball.radius)
+                img2 = Ball(ball.pos.add(Vector3(0,0,z)), ball.vel, ball.radius)
+                img3 = Ball(ball.pos.add(Vector3(0,y,z)), ball.vel, ball.radius)
+            elif y == 0:
+                img1 = Ball(ball.pos.add(Vector3(x,0,0)), ball.vel, ball.radius)
+                img2 = Ball(ball.pos.add(Vector3(x,0,z)), ball.vel, ball.radius)
+                img3 = Ball(ball.pos.add(Vector3(0,0,z)), ball.vel, ball.radius)
+            elif z == 0:
+                img1 = Ball(ball.pos.add(Vector3(x,y,0)), ball.vel, ball.radius)
+                img2 = Ball(ball.pos.add(Vector3(0,y,0)), ball.vel, ball.radius)
+                img3 = Ball(ball.pos.add(Vector3(x,0,0)), ball.vel, ball.radius)
+            ball.images.append(img1)
+            ball.images.append(img2)
+            ball.images.append(img3)
+        elif m == 3:
+            img1 = Ball(ball.pos.add(Vector3(x,y,0)), ball.vel, ball.radius)
+            img2 = Ball(ball.pos.add(Vector3(0,y,0)), ball.vel, ball.radius)
+            img3 = Ball(ball.pos.add(Vector3(x,0,0)), ball.vel, ball.radius)
+            img4 = Ball(ball.pos.add(Vector3(0,0,z)), ball.vel, ball.radius)
+            img5 = Ball(ball.pos.add(Vector3(x,0,z)), ball.vel, ball.radius)
+            img6 = Ball(ball.pos.add(Vector3(0,y,z)), ball.vel, ball.radius)
+            img7 = Ball(ball.pos.add(Vector3(x,y,z)), ball.vel, ball.radius)
+            ball.images.append(img1)
+            ball.images.append(img2)
+            ball.images.append(img3)
+            ball.images.append(img4)
+            ball.images.append(img5)
+            ball.images.append(img6)
+            ball.images.append(img7)
+
 
 def collision_wall(balls):
     '''

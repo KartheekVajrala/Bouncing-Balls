@@ -47,46 +47,8 @@ def remove_images(balls):
     '''
     Removing uneccessary images that are not needed.
     '''
-    for b,ball in enumerate(balls):
-        for i,img in enumerate(ball.images):
-            if img == None:
-                continue
-            if i==0:                                        # If the image is the first image and the ball is not touching wall delete it
-                if ball.pos.x > ball.radius:
-                    ball.images[i] = None
-                if ball.pos.x < -ball.radius:
-                    balls[b] = ball.images[i]
-                    break
-            if i==1:
-                if ball.pos.y > ball.radius:
-                    ball.images[i] = None
-                if ball.pos.y < -ball.radius:
-                    balls[b] = ball.images[i]
-                    break
-            if i==2:
-                if ball.pos.z > ball.radius:
-                    ball.images[i] = None
-                if ball.pos.z < -ball.radius:
-                    balls[b] = ball.images[i]
-                    break
-            if i==3:
-                if ball.pos.x < L - ball.radius:
-                    ball.images[i] = None
-                if ball.pos.x > L + ball.radius:
-                    balls[b] = ball.images[i]
-                    break
-            if i==4:
-                if ball.pos.y < L - ball.radius:
-                    ball.images[i] = None
-                if ball.pos.y > L + ball.radius:
-                    balls[b] = ball.images[i]
-                    break
-            if i==5:
-                if ball.pos.z < L - ball.radius:
-                    ball.images[i] = None
-                if ball.pos.z > L + ball.radius:
-                    balls[b] = ball.images[i]
-                    break
+    for ball in balls:
+        ball.images = []
 
 def save_balls(balls):
     '''
@@ -95,6 +57,8 @@ def save_balls(balls):
     with open('locations.txt','w') as f:
         for ball in balls:
             f.write(str(ball.radius) +" , " + str(ball.pos.x) + ' , ' + str(ball.pos.y) + ' , ' + str(ball.pos.z) + '\n')
+            for img in ball.images:
+                f.write(str(img.radius) +" , " + str(img.pos.x) + ' , ' + str(img.pos.y) + ' , ' + str(img.pos.z) + '\n')
     return
 
 def main():
@@ -146,7 +110,7 @@ def main():
             
             generate_images(balls,L)                                
             collision_wall(balls)
-            remove_images(balls)
+            
         # For in case of reflection generate the images of the balls
         else :
             hard_collision(balls,L)
@@ -184,6 +148,8 @@ def main():
             Sphere(ball)
         # Rendering the Box
         Cube()
+
+        remove_images(balls)
         pygame.display.flip()
         
         pygame.time.wait(10)
